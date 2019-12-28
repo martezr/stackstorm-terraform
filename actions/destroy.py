@@ -3,7 +3,7 @@ from lib import action
 
 
 class Destroy(action.TerraformBaseAction):
-    def run(self, plan_path, state_file_path, terraform_exec,
+    def run(self, plan_path, state_file_path, stream_output, terraform_exec,
             variable_dict, variable_files):
         """
         Destroy Terraform managed infrastructure
@@ -11,6 +11,7 @@ class Destroy(action.TerraformBaseAction):
         Args:
         - plan_path: path of the Terraform files
         - state_file_path: path of the Terraform state file
+        - stream_output: Stream the Terraform execution output
         - terraform_exec: path of the Terraform bin
         - variable_dict: dictionary of Terraform variables that will overwrite the
             variable files if both are declared
@@ -21,8 +22,13 @@ class Destroy(action.TerraformBaseAction):
         """
         os.chdir(plan_path)
         self.terraform.terraform_bin_path = terraform_exec
-        return_code, stdout, stderr = self.terraform.destroy(plan_path, var_file=variable_files,
-                                                             var=variable_dict,
-                                                             state=state_file_path,
-                                                             force="true")
-        return self.check_result(return_code, stdout, stderr)
+        if stream_output:
+            return self.terraform.destroy(plan_path, var_file=variable_files, var=variable_dict,
+                                          state=state_file_path,
+                                          force="true")
+        else:
+            return_code, stdout, stderr = self.terraform.destroy(plan_path, var_file=variable_files,
+                                                                 var=variable_dict,
+                                                                 state=state_file_path,
+                                                                 force="true")
+            return self.check_result(return_code, stdout, stderr)

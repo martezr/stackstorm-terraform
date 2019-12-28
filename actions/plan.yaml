@@ -13,6 +13,11 @@ parameters:
     type: "string"
     description: "Path of terraform state file"
     required: false
+  stream_output:
+    type: "boolean"
+    description: "Stream the Terraform execution output"
+    required: false
+    default: false
   target_resources:
     type: "array"
     description: "List of resource addresses to target"
